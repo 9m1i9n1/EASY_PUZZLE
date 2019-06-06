@@ -75,6 +75,7 @@ public class Sliding extends JPanel implements MouseListener {
 			}
 		}
 
+		setVisible(true);
 		shuffle(level); // 숫자 섞기
 		addMouseListener(this); // 마우스 리스너 등록
 		setVisible(true);
@@ -84,22 +85,28 @@ public class Sliding extends JPanel implements MouseListener {
 	private void shuffle(int level) {
 		char[] dir = { 'l', 'r', 'u', 'd' };
 		int block = n * n - 1;
+
 		game = new int[n * n];
-
 		Random rand = new Random();
-		for (int i = 0; i < n * n; i++)
-			game[i] = 0;
 
-		if (level == 2) {
-			for (int i = 0; i < 200; i++) {
-				block = move(dir[rand.nextInt(4)], block);
-			}
+		for (int i = 0; i < n * n; i++)
+			game[i] = i;
+		
+		level = 1;
+		
+		for (int i = 0; i < Math.pow(n * n, level); i++) {
+			block = move(dir[rand.nextInt(4)], block, false);
 		}
 
 		/*
-		 * for (int i = 0; i < n * n; i++) { int temp = 0; do { temp = rnd.nextInt(n *
-		 * n); } while (game[temp] != 0); game[temp] = i; }
-		 */
+		for (int i = 0; i < row * col; i++) {
+			int temp = 0;
+			do {
+				temp = rnd.nextInt(row * col);
+			} while (game[temp] != 0);
+			game[temp] = i;
+		}
+		*/
 		// System.out.println(Arrays.toString(game));
 	}
 
@@ -126,7 +133,7 @@ public class Sliding extends JPanel implements MouseListener {
 		frame.setVisible(true);
 	}
 
-	public int move(char dir, int imgNo) {
+	public int move(char dir, int imgNo, Boolean human) {
 		int temp = 0;
 
 		switch (dir) {
@@ -158,7 +165,7 @@ public class Sliding extends JPanel implements MouseListener {
 			break;
 
 		case 'd':
-			if (imgNo - n > n * n) {
+			if (imgNo - n >= 0) {
 				temp = game[imgNo];
 				game[imgNo] = game[imgNo - n];
 				game[imgNo - n] = temp;
@@ -168,7 +175,11 @@ public class Sliding extends JPanel implements MouseListener {
 		}
 
 		repaint();
-		endGame();
+		
+		if(human) {
+			endGame();
+		}
+		
 
 		return imgNo;
 	}
@@ -191,28 +202,28 @@ public class Sliding extends JPanel implements MouseListener {
 
 		try {
 			if (game[imgNo + 1] == blank) {
-				move('l', imgNo);
+				move('l', imgNo, true);
 			}
 		} catch (ArrayIndexOutOfBoundsException exception) {
 
 		}
 		try {
 			if (game[imgNo - 1] == blank) {
-				move('r', imgNo);
+				move('r', imgNo, true);
 			}
 		} catch (ArrayIndexOutOfBoundsException exception) {
 
 		}
 		try {
 			if (game[imgNo + n] == blank) {
-				move('u', imgNo);
+				move('u', imgNo, true);
 			}
 		} catch (ArrayIndexOutOfBoundsException exception) {
 
 		}
 		try {
 			if (game[imgNo - n] == blank) {
-				move('d', imgNo);
+				move('d', imgNo, true);
 			}
 		} catch (ArrayIndexOutOfBoundsException exception) {
 
