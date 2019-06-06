@@ -11,6 +11,7 @@ import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.util.Arrays;
 import java.util.Random;
+import java.util.StringTokenizer;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -21,14 +22,20 @@ import javax.swing.JPanel;
 public class Sliding extends JPanel implements MouseListener {
 
 	int count = 0, game[]; // count : 증가변수, game : 실제 저장된 값
-	int n = 3; // 행, 열
-	int level = 2;
+	int n; // 행, 열
+	int level;
 	Image original, blank; // 원본 이미지
 	BufferedImage img[]; // 원본 이미지를 잘라 저장할 배열
 	int width, height; // 잘라낸 그림 1개의 크기
 	int clickCount, clickNum; // 클릭수 카운트, 이전에 클릭한 위치
+	long t_start, t_end;
 
 	public Sliding() {
+		
+		String s= Pop();
+		StringTokenizer st = new StringTokenizer(s);
+		n = Integer.parseInt(st.nextToken());
+		level = Integer.parseInt(st.nextToken());
 
 		// 원본 그림 읽기
 		MediaTracker tracker = new MediaTracker(this); //// 이미지에만 적용되는 쓰레드역할 단독사용해야함
@@ -38,6 +45,7 @@ public class Sliding extends JPanel implements MouseListener {
 		 */
 
 		original = Toolkit.getDefaultToolkit().getImage("default.jpg"); // 1.jpg라는 그림파일을 프로젝트 안에 넣어야 함
+		original = original.getScaledInstance(500, 500, Image.SCALE_DEFAULT);
 		blank = Toolkit.getDefaultToolkit().getImage("blank.jpg");
 		tracker.addImage(original, 0);
 		try {
@@ -79,6 +87,8 @@ public class Sliding extends JPanel implements MouseListener {
 		shuffle(level); // 숫자 섞기
 		addMouseListener(this); // 마우스 리스너 등록
 		setVisible(true);
+		
+		t_start = System.currentTimeMillis();
 	}
 
 	// game배열의 숫자 섞기
@@ -94,20 +104,9 @@ public class Sliding extends JPanel implements MouseListener {
 		
 		level = 1;
 		
-		for (int i = 0; i < Math.pow(n * n, level); i++) {
+		for (int i = 0; i < Math.pow((n * n) * 5, level); i++) {
 			block = move(dir[rand.nextInt(4)], block, false);
 		}
-
-		/*
-		for (int i = 0; i < row * col; i++) {
-			int temp = 0;
-			do {
-				temp = rnd.nextInt(row * col);
-			} while (game[temp] != 0);
-			game[temp] = i;
-		}
-		*/
-		// System.out.println(Arrays.toString(game));
 	}
 
 	// 그리기 코드에 paint에 몰아준다.
@@ -124,9 +123,9 @@ public class Sliding extends JPanel implements MouseListener {
 
 	public static void main(String[] args) {
 		Sliding pane = new Sliding();
-		JFrame frame = new JFrame("재미없는 Puzzle Ver 0.1");
+		JFrame frame = new JFrame("MIN'S SLIDE PUZZLE");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setSize(pane.width * pane.n, pane.height * pane.n);
+		frame.setSize(515, 535);
 		frame.setResizable(false); // 프레임의 크기를 변경할수 없다(false)
 		Container panel = frame.getContentPane();
 		panel.add(pane);
@@ -138,7 +137,7 @@ public class Sliding extends JPanel implements MouseListener {
 
 		switch (dir) {
 		case 'l':
-			if (imgNo % n != 2) {
+			if (imgNo % n != n-1) {
 				temp = game[imgNo];
 				game[imgNo] = game[imgNo + 1];
 				game[imgNo + 1] = temp;
@@ -239,17 +238,30 @@ public class Sliding extends JPanel implements MouseListener {
 			}
 		}
 		if (endGame) { // if(조건식)에서 조건식이 true면 if문실행
+			t_end = System.currentTimeMillis();
+			
 			JOptionPane.showMessageDialog(this, "승리");
+			System.out.println( "실행 시간 : " + ( t_end - t_start )/1000.0 +"초");
+			
+			System.exit(0);
+			
 			// 게임 재시작을 확인
-			int reStart = JOptionPane.showConfirmDialog(this, "다시 시작?", "종료확인", JOptionPane.YES_NO_OPTION);
+			/*int reStart = JOptionPane.showConfirmDialog(this, "다시 시작?", "종료확인", JOptionPane.YES_NO_OPTION);
 			if (reStart == JOptionPane.YES_OPTION) {
 				// 배열을 다시 섞고 다시 그리기를 한다
 				shuffle(level); // 섞기
 				repaint(); // 다시 그리기
 			} else {
 				System.exit(0);
-			}
+			}*/
 		}
+	}
+	
+	private String Pop() {
+		String n = JOptionPane.showInputDialog("가로 몇 줄의 퍼즐을 원하세요?");
+		String level = JOptionPane.showInputDialog("난이도를 선택하세요 (쉬움 : 1, 보통 : 2, 어려움 : 3)");
+		
+		return n + " " + level;
 	}
 
 	public void mousePressed(MouseEvent e) {
