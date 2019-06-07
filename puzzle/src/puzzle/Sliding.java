@@ -9,10 +9,10 @@ import java.awt.Toolkit;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
-import java.util.Arrays;
 import java.util.Random;
 import java.util.StringTokenizer;
 
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -82,11 +82,9 @@ public class Sliding extends JPanel implements MouseListener {
 				cnt++;
 			}
 		}
-
 		setVisible(true);
 		shuffle(level); // 숫자 섞기
 		addMouseListener(this); // 마우스 리스너 등록
-		setVisible(true);
 		
 		t_start = System.currentTimeMillis();
 	}
@@ -244,26 +242,15 @@ public class Sliding extends JPanel implements MouseListener {
 			String time = String.valueOf((t_end - t_start) / 1000);
 			System.out.println( "실행 시간 : " + time +"초");
 			
-			setVisible(false);
 			Filerank fr = new Filerank(name, time);
 			
-			System.exit(0);
-			
-			// 게임 재시작을 확인
-			/*int reStart = JOptionPane.showConfirmDialog(this, "다시 시작?", "종료확인", JOptionPane.YES_NO_OPTION);
-			if (reStart == JOptionPane.YES_OPTION) {
-				// 배열을 다시 섞고 다시 그리기를 한다
-				shuffle(level); // 섞기
-				repaint(); // 다시 그리기
-			} else {
-				System.exit(0);
-			}*/
+			//System.exit(0);
 		}
 	}
 	
 	private String Pop() {
 		String n = JOptionPane.showInputDialog("가로 몇 줄의 퍼즐을 원하세요?");
-		String level = JOptionPane.showInputDialog("난이도를 선택하세요! (쉬움 : 1, 보통 : 2, 어려움 : 3)");
+		String level = JOptionPane.showInputDialog("난이도를 입력 해주세요! (쉬움 : 1, 보통 : 2, 어려움 : 3)");
 		
 		return n + " " + level;
 	}
