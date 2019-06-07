@@ -29,10 +29,12 @@ public class Sliding extends JPanel implements MouseListener {
 	int width, height; // 잘라낸 그림 1개의 크기
 	int clickCount, clickNum; // 클릭수 카운트, 이전에 클릭한 위치
 	long t_start, t_end;
+	//=========================
+	static JButton btn_robot = new JButton("AI 도와줘!");
 
 	public Sliding() {
-		
-		String s= Pop();
+
+		String s = Pop();
 		StringTokenizer st = new StringTokenizer(s);
 		n = Integer.parseInt(st.nextToken());
 		level = Integer.parseInt(st.nextToken());
@@ -51,7 +53,6 @@ public class Sliding extends JPanel implements MouseListener {
 		try {
 			tracker.waitForAll(); // waitForAll(); : Starts loading all images tracked by this media tracker.
 		} catch (InterruptedException e) {
-			;
 		}
 		width = original.getWidth(this) / n;
 		height = original.getHeight(this) / n;
@@ -85,7 +86,7 @@ public class Sliding extends JPanel implements MouseListener {
 		setVisible(true);
 		shuffle(level); // 숫자 섞기
 		addMouseListener(this); // 마우스 리스너 등록
-		
+
 		t_start = System.currentTimeMillis();
 	}
 
@@ -99,12 +100,13 @@ public class Sliding extends JPanel implements MouseListener {
 
 		for (int i = 0; i < n * n; i++)
 			game[i] = i;
+
+		do {
+			for (int i = 0; i < Math.pow((n * n) * 5, level); i++) {
+				block = move(dir[rand.nextInt(4)], block, false);
+			}
+		} while(endGame());
 		
-		level = 1;
-		
-		for (int i = 0; i < Math.pow((n * n) * 5, level); i++) {
-			block = move(dir[rand.nextInt(4)], block, false);
-		}
 	}
 
 	// 그리기 코드에 paint에 몰아준다.
@@ -123,10 +125,13 @@ public class Sliding extends JPanel implements MouseListener {
 		Sliding pane = new Sliding();
 		JFrame frame = new JFrame("MIN'S SLIDE PUZZLE");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setSize(515, 535);
+		frame.setLayout(null);
+		frame.setSize(515, 570);
 		frame.setResizable(false); // 프레임의 크기를 변경할수 없다(false)
 		Container panel = frame.getContentPane();
 		panel.add(pane);
+		
+		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
 	}
 
@@ -135,7 +140,7 @@ public class Sliding extends JPanel implements MouseListener {
 
 		switch (dir) {
 		case 'l':
-			if (imgNo % n != n-1) {
+			if (imgNo % n != n - 1) {
 				temp = game[imgNo];
 				game[imgNo] = game[imgNo + 1];
 				game[imgNo + 1] = temp;
@@ -173,10 +178,23 @@ public class Sliding extends JPanel implements MouseListener {
 
 		repaint();
 		
-		if(human) {
-			endGame();
+		boolean tfend = endGame();
+
+		if (human) {
+			if(tfend) { // if(조건식)에서 조건식이 true면 if문실행
+				t_end = System.currentTimeMillis();
+
+				String name = JOptionPane.showInputDialog("성공하셨습니다! 이름을 입력해주세요!");
+				if (name == null) {
+					JOptionPane.showMessageDialog(null, "이름을 설정하지 않으셔서 기본값인 '플레이어'로 입력됩니다.");
+					name = "플레이어";
+				}
+				String time = String.valueOf((t_end - t_start) / 1000);
+				System.out.println("실행 시간 : " + time + "초");
+
+				Filerank fr = new Filerank(name, time);
+			}
 		}
-		
 
 		return imgNo;
 	}
@@ -228,99 +246,86 @@ public class Sliding extends JPanel implements MouseListener {
 	}
 
 	// 게임 종료를 확인하는 메소드
-	private void endGame() {
+	private boolean endGame() {
 		boolean endGame = true;
 		for (int i = 0; i < game.length; i++) {
 			if (i != game[i]) {
 				endGame = false;
 			}
 		}
-		
-		if (endGame) { // if(조건식)에서 조건식이 true면 if문실행
-			t_end = System.currentTimeMillis();
-			
-			String name = JOptionPane.showInputDialog("성공하셨습니다! 이름을 입력해주세요!");
-			String time = String.valueOf((t_end - t_start) / 1000);
-			System.out.println( "실행 시간 : " + time +"초");
-			
-			Filerank fr = new Filerank(name, time);
-			
-			//System.exit(0);
-		}
+
+		return endGame;
 	}
-	
+
 	private String Pop() {
 		String n = JOptionPane.showInputDialog("가로 몇 줄의 퍼즐을 원하세요? (2이상 숫자입력)");
-		if(n == null || !isDigit(n)) {
+		if (n == null || !isDigit(n)) {
 			JOptionPane.showMessageDialog(null, "2 이상의 숫자를 입력해주세요!");
 			System.exit(0);
 		}
-		
-		String[] dif = {"쉬움", "보통", "어려움"};
-		Object level = JOptionPane.showInputDialog(null, "난이도를 선택해주세요!", "난이도 설정",
-				  JOptionPane.QUESTION_MESSAGE, null, dif, dif[0]);
-		if(level == null) {
+
+		String[] dif = { "쉬움", "보통", "어려움" };
+		Object level = JOptionPane.showInputDialog(null, "난이도를 선택해주세요!", "난이도 설정", JOptionPane.QUESTION_MESSAGE, null,
+				dif, dif[0]);
+		if (level == null) {
 			JOptionPane.showMessageDialog(null, "난이도를 선택해야합니다!");
 			System.exit(0);
-		}
-		else {
-			if(level.equals("쉬움")) {
+		} else {
+			if (level.equals("쉬움")) {
 				level = "1";
-			}
-			else if(level.equals("보통")) {
+			} else if (level.equals("보통")) {
 				level = "2";
-			}
-			else {
+			} else {
 				level = "3";
 			}
 		}
-		
+
 		return n + " " + level;
 	}
-	
+
 	private boolean isDigit(String value) {
-		if("".equals(value)) {
+		if ("".equals(value)) {
 			return false;
-			}
-		
-		if(value.length() == 1) {
-			if(value.equals("0") || value.equals("1")) {
+		}
+
+		if (value.length() == 1) {
+			if (value.equals("0") || value.equals("1")) {
 				return false;
 			}
 		}
-		 
-		for(int i = 0;i<value.length();i++){
+
+		for (int i = 0; i < value.length(); i++) {
 			char result = value.charAt(i);
-			
-			if(result < 48 || result > 57){ //문자
+
+			if (result < 48 || result > 57) { // 문자
 				return false;
 			}
 		}
-		 
-		 return true;
+
+		return true;
 	}
 
 	@Override
 	public void mousePressed(MouseEvent e) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void mouseEntered(MouseEvent e) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void mouseExited(MouseEvent e) {
 		// TODO Auto-generated method stub
-		
+
 	}
 }
