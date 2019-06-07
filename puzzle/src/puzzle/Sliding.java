@@ -235,6 +235,7 @@ public class Sliding extends JPanel implements MouseListener {
 				endGame = false;
 			}
 		}
+		
 		if (endGame) { // if(조건식)에서 조건식이 true면 if문실행
 			t_end = System.currentTimeMillis();
 			
@@ -249,10 +250,54 @@ public class Sliding extends JPanel implements MouseListener {
 	}
 	
 	private String Pop() {
-		String n = JOptionPane.showInputDialog("가로 몇 줄의 퍼즐을 원하세요?");
-		String level = JOptionPane.showInputDialog("난이도를 입력 해주세요! (쉬움 : 1, 보통 : 2, 어려움 : 3)");
+		String n = JOptionPane.showInputDialog("가로 몇 줄의 퍼즐을 원하세요? (2이상 숫자입력)");
+		if(n == null || !isDigit(n)) {
+			JOptionPane.showMessageDialog(null, "2 이상의 숫자를 입력해주세요!");
+			System.exit(0);
+		}
+		
+		String[] dif = {"쉬움", "보통", "어려움"};
+		Object level = JOptionPane.showInputDialog(null, "난이도를 선택해주세요!", "난이도 설정",
+				  JOptionPane.QUESTION_MESSAGE, null, dif, dif[0]);
+		if(level == null) {
+			JOptionPane.showMessageDialog(null, "난이도를 선택해야합니다!");
+			System.exit(0);
+		}
+		else {
+			if(level.equals("쉬움")) {
+				level = "1";
+			}
+			else if(level.equals("보통")) {
+				level = "2";
+			}
+			else {
+				level = "3";
+			}
+		}
 		
 		return n + " " + level;
+	}
+	
+	private boolean isDigit(String value) {
+		if("".equals(value)) {
+			return false;
+			}
+		
+		if(value.length() == 1) {
+			if(value.equals("0") || value.equals("1")) {
+				return false;
+			}
+		}
+		 
+		for(int i = 0;i<value.length();i++){
+			char result = value.charAt(i);
+			
+			if(result < 48 || result > 57){ //문자
+				return false;
+			}
+		}
+		 
+		 return true;
 	}
 
 	@Override
