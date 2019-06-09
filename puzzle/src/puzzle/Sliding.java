@@ -140,8 +140,10 @@ public class Sliding extends JPanel implements MouseListener{
 
             @Override
             public void actionPerformed(ActionEvent e) {
-            	Robot solution = new Solver(game, n).solvePuzzleAStar();
-        		System.out.println(solution.getMoves());
+                Puzzle puzzle = new Puzzle(game, n);
+
+                // Solve the puzzle.
+                puzzle.solve();
             }
         });
 		btn_robot.setLocation(200, 505);
