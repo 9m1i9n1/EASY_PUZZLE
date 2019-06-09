@@ -85,7 +85,7 @@ public class Puzzle {
   /**
    * This method handles the solving of the puzzle.
    */
-  public void solve() {
+  public String solve() {
     // Clear the queue and add the initial state.
     queue.clear();
     queue.add(this.initialState);
@@ -97,8 +97,8 @@ public class Puzzle {
 
       // Check if the state is a solution.
       if (this.state.isSolved()) {
-        System.out.println(this.state.solutionMessage(startTime));
-        return;
+        System.out.println(this.state.allSteps());
+        return this.state.allSteps();
       }
 
       // Add this state to the visited HashSet so we don't revisit it.
@@ -110,6 +110,7 @@ public class Puzzle {
       this.addToQueue(Move.left(state, num));
       this.addToQueue(Move.right(state, num));
     }
+	return null;
   }
 }
 

@@ -1,6 +1,5 @@
 package puzzle;
 
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
@@ -18,8 +17,6 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
 
 //패널을 이용한 그림퍼즐게임
 
@@ -36,6 +33,7 @@ public class Sliding extends JPanel implements MouseListener {
 	long t_start, t_end;
 	// =========================
 	static JButton btn_robot = new JButton("AI 도와줘!");
+	static String str_dir = new String();
 
 	public Sliding() {
 
@@ -108,7 +106,7 @@ public class Sliding extends JPanel implements MouseListener {
 
 		do {
 			for (int i = 0; i < Math.pow((n * n) * 5, level); i++) {
-				block = move(dir[rand.nextInt(4)], block, false);
+				block = move(dir[rand.nextInt(4)], block, 0);
 			}
 		} while (endGame());
 
@@ -133,10 +131,11 @@ public class Sliding extends JPanel implements MouseListener {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setSize(513, 580);
 		frame.setResizable(false); // 프레임의 크기를 변경할수 없다(false)
-		Container panel = frame.getContentPane();
-		panel.add(pane);
+		frame.add(pane);
 
 		btn_robot.addActionListener(new ActionListener() {
+
+			int block = 0;
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -144,26 +143,27 @@ public class Sliding extends JPanel implements MouseListener {
 
 				for (int i = 0; i < temp.length; i++) {
 					if (game[i] == n * n - 1) {
+						block = i;
 						temp[i] = 0;
 					} else {
 						temp[i] = game[i] + 1;
 					}
 				}
-				
-				for(int i = 0; i < temp.length; i++) {
-					System.out.println(temp[i]);
-				}
-				
-				System.out.println("\n");
-				
-				for(int i = 0; i < temp.length; i++) {
-					System.out.println(game[i]);
-				}
 
 				Puzzle puzzle = new Puzzle(temp, n);
 
 				// Solve the puzzle.
-				puzzle.solve();
+				str_dir = puzzle.solve();
+
+				for (int i = 0; i < str_dir.length(); i++) {
+					block = pane.move(str_dir.charAt(i), block, 2);
+					try {
+						Thread.sleep(500);
+					} catch (InterruptedException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}
 			}
 		});
 		btn_robot.setLocation(200, 505);
@@ -174,11 +174,11 @@ public class Sliding extends JPanel implements MouseListener {
 		frame.setVisible(true);
 	}
 
-	public int move(char dir, int imgNo, Boolean human) {
+	public int move(char dir, int imgNo, int human) {
 		int temp = 0;
 
 		switch (dir) {
-		case 'l':
+		case 'r':
 			if (imgNo % n != n - 1) {
 				temp = game[imgNo];
 				game[imgNo] = game[imgNo + 1];
@@ -187,7 +187,7 @@ public class Sliding extends JPanel implements MouseListener {
 			}
 			break;
 
-		case 'r':
+		case 'l':
 			if (imgNo % n != 0) {
 				temp = game[imgNo];
 				game[imgNo] = game[imgNo - 1];
@@ -196,7 +196,7 @@ public class Sliding extends JPanel implements MouseListener {
 			}
 			break;
 
-		case 'u':
+		case 'd':
 			if (imgNo + n < n * n) {
 				temp = game[imgNo];
 				game[imgNo] = game[imgNo + n];
@@ -205,7 +205,7 @@ public class Sliding extends JPanel implements MouseListener {
 			}
 			break;
 
-		case 'd':
+		case 'u':
 			if (imgNo - n >= 0) {
 				temp = game[imgNo];
 				game[imgNo] = game[imgNo - n];
@@ -214,12 +214,12 @@ public class Sliding extends JPanel implements MouseListener {
 			}
 			break;
 		}
-
+		
 		repaint();
 
 		boolean tfend = endGame();
 
-		if (human) {
+		if (human == 1) {
 			if (tfend) { // if(조건식)에서 조건식이 true면 if문실행
 				t_end = System.currentTimeMillis();
 
@@ -233,6 +233,11 @@ public class Sliding extends JPanel implements MouseListener {
 
 				Filerank fr = new Filerank(name, time);
 			}
+		} else if (human == 2) {
+			if (tfend) {
+				JOptionPane.showMessageDialog(null, "컴퓨터가 풀었네요. 기록은 입력하지 않습니다.");
+				System.exit(0);
+			}
 		}
 
 		return imgNo;
@@ -245,9 +250,9 @@ public class Sliding extends JPanel implements MouseListener {
 		int r = y / height; // 그림 한개의 높이로 나눈다
 		int c = x / width; // 그림 한개의 폭으로 나눈다
 		int imgNo = r * n + c; // 배열 첨자
-		String coord = "(" + x + ", " + y + ") - (" + r + ", " + c + ") - " + imgNo + " : " + game[imgNo];
+		//String coord = "(" + x + ", " + y + ") - (" + r + ", " + c + ") - " + imgNo + " : " + game[imgNo];
 		// imgNo : 현재 그림 위치 / game[imgNo] : 정답위치 / clickNum = imgNo
-		System.out.println(coord);
+		//System.out.println(coord);
 
 		// =======================================================
 
@@ -256,28 +261,28 @@ public class Sliding extends JPanel implements MouseListener {
 
 		try {
 			if (game[imgNo + 1] == blank) {
-				move('l', imgNo, true);
+				move('r', imgNo, 1);
 			}
 		} catch (ArrayIndexOutOfBoundsException exception) {
 
 		}
 		try {
 			if (game[imgNo - 1] == blank) {
-				move('r', imgNo, true);
+				move('l', imgNo, 1);
 			}
 		} catch (ArrayIndexOutOfBoundsException exception) {
 
 		}
 		try {
 			if (game[imgNo + n] == blank) {
-				move('u', imgNo, true);
+				move('d', imgNo, 1);
 			}
 		} catch (ArrayIndexOutOfBoundsException exception) {
 
 		}
 		try {
 			if (game[imgNo - n] == blank) {
-				move('d', imgNo, true);
+				move('u', imgNo, 1);
 			}
 		} catch (ArrayIndexOutOfBoundsException exception) {
 

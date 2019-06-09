@@ -43,6 +43,10 @@ public class Filerank {
 
 	Vector<String> userColumn = new Vector<String>();
 	Vector<String> userRow;
+	
+	Filerank() {
+		
+	}
 
 	Filerank(String name, String time) { // »ý¼ºÀÚ
 		JFrame frame = new JFrame();

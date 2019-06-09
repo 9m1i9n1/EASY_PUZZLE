@@ -89,46 +89,15 @@ class State {
   }
 
   /**
-   * This returns a human-readable string representation
-   * of the current state of the puzzle it is called on.
-   * @return The puzzle as a string.
-   */
-  public String toString() {
-    int[] state = this.array;
-    String s = "\n\n";
-    for(int i = 0; i < state.length; i++) {
-      if(i % n == 0 && i != 0) s += "\n";
-      s += (state[i] != 0) ? String.format("%d ", state[i]) : "  ";
-    }
-    return s;
-  }
-
-  /**
    * This method returns a string representation of all
    * steps taken to solve the puzzle.
    * @return String - The puzzle steps as a string.
    */
   public String allSteps() {
-    StringBuilder sb = new StringBuilder();
-    if (this.previous != null) sb.append(previous.allSteps());
-    //sb.append(this.toString());
-    sb.append(dir);
-    return sb.toString();
-  }
-
-  /**
-   * This method creates a solution message for when the
-   * puzzle has been solved using a StringBuilder.
-   * @return String - The solution message.
-   */
-  public String solutionMessage(long startTime) {
-    long solveTime = System.currentTimeMillis() - startTime;
-    StringBuilder sb = new StringBuilder();
-    sb.append("Here are the steps to the goal state:\n");
-    sb.append(this.allSteps());
-    //sb.append("\n\nGiven puzzle is SOLVED!");
-    //sb.append("\nSolution took " + solveTime + "ms and " + this.g + " steps.\n");
-    return sb.toString();
+	String s = new String();
+    if (this.previous != null) s += previous.allSteps();
+    s += dir;
+    return s;
   }
 
   /**
