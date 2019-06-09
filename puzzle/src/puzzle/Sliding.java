@@ -23,7 +23,7 @@ import javax.swing.UIManager;
 
 //패널을 이용한 그림퍼즐게임
 
-public class Sliding extends JPanel implements MouseListener{
+public class Sliding extends JPanel implements MouseListener {
 
 	int count = 0; // count : 증가변수, game : 실제 저장된 값
 	static int game[];
@@ -138,14 +138,34 @@ public class Sliding extends JPanel implements MouseListener{
 
 		btn_robot.addActionListener(new ActionListener() {
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                Puzzle puzzle = new Puzzle(game, n);
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				int temp[] = new int[n * n];
 
-                // Solve the puzzle.
-                puzzle.solve();
-            }
-        });
+				for (int i = 0; i < temp.length; i++) {
+					if (game[i] == n * n - 1) {
+						temp[i] = 0;
+					} else {
+						temp[i] = game[i] + 1;
+					}
+				}
+				
+				for(int i = 0; i < temp.length; i++) {
+					System.out.println(temp[i]);
+				}
+				
+				System.out.println("\n");
+				
+				for(int i = 0; i < temp.length; i++) {
+					System.out.println(game[i]);
+				}
+
+				Puzzle puzzle = new Puzzle(temp, n);
+
+				// Solve the puzzle.
+				puzzle.solve();
+			}
+		});
 		btn_robot.setLocation(200, 505);
 		btn_robot.setSize(100, 30);
 		frame.add(btn_robot);

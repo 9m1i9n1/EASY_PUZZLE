@@ -28,6 +28,7 @@ class State {
   private State previous;
   
   private String dir = "";
+  
   private int n;
 
   /**
