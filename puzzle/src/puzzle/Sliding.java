@@ -6,6 +6,8 @@ import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.MediaTracker;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
@@ -16,20 +18,23 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 
 //패널을 이용한 그림퍼즐게임
 
-public class Sliding extends JPanel implements MouseListener {
+public class Sliding extends JPanel implements MouseListener{
 
-	int count = 0, game[]; // count : 증가변수, game : 실제 저장된 값
-	int n; // 행, 열
+	int count = 0; // count : 증가변수, game : 실제 저장된 값
+	static int game[];
+	static int n; // 행, 열
 	int level;
 	Image original, blank; // 원본 이미지
 	BufferedImage img[]; // 원본 이미지를 잘라 저장할 배열
 	int width, height; // 잘라낸 그림 1개의 크기
 	int clickCount, clickNum; // 클릭수 카운트, 이전에 클릭한 위치
 	long t_start, t_end;
-	//=========================
+	// =========================
 	static JButton btn_robot = new JButton("AI 도와줘!");
 
 	public Sliding() {
@@ -105,8 +110,8 @@ public class Sliding extends JPanel implements MouseListener {
 			for (int i = 0; i < Math.pow((n * n) * 5, level); i++) {
 				block = move(dir[rand.nextInt(4)], block, false);
 			}
-		} while(endGame());
-		
+		} while (endGame());
+
 	}
 
 	// 그리기 코드에 paint에 몰아준다.
@@ -124,13 +129,25 @@ public class Sliding extends JPanel implements MouseListener {
 	public static void main(String[] args) {
 		Sliding pane = new Sliding();
 		JFrame frame = new JFrame("MIN'S SLIDE PUZZLE");
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setLayout(null);
-		frame.setSize(515, 570);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setSize(513, 580);
 		frame.setResizable(false); // 프레임의 크기를 변경할수 없다(false)
 		Container panel = frame.getContentPane();
 		panel.add(pane);
-		
+
+		btn_robot.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+            	Robot solution = new Solver(game, n).solvePuzzleAStar();
+        		System.out.println(solution.getMoves());
+            }
+        });
+		btn_robot.setLocation(200, 505);
+		btn_robot.setSize(100, 30);
+		frame.add(btn_robot);
+
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
 	}
@@ -177,11 +194,11 @@ public class Sliding extends JPanel implements MouseListener {
 		}
 
 		repaint();
-		
+
 		boolean tfend = endGame();
 
 		if (human) {
-			if(tfend) { // if(조건식)에서 조건식이 true면 if문실행
+			if (tfend) { // if(조건식)에서 조건식이 true면 if문실행
 				t_end = System.currentTimeMillis();
 
 				String name = JOptionPane.showInputDialog("성공하셨습니다! 이름을 입력해주세요!");
