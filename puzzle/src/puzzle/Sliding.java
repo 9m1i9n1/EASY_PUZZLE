@@ -18,61 +18,60 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-//패널을 이용한 그림퍼즐게임
 
 public class Sliding extends JPanel implements MouseListener {
 
-	int count = 0; // count : 증가변수, game : 실제 저장된 값
-	static int game[];
+	int count = 0; // count : 증가변수
+	static int game[]; // game : 실제 저장된 값
 	static int n; // 행, 열
-	int level;
-	Image original, blank; // 원본 이미지
+	int level; // 난이도 설정
+	// =========================
+	Image original, blank; // original : 원본 이미지, blank : blank 이미지
 	BufferedImage img[]; // 원본 이미지를 잘라 저장할 배열
 	int width, height; // 잘라낸 그림 1개의 크기
-	int clickCount, clickNum; // 클릭수 카운트, 이전에 클릭한 위치
-	long t_start, t_end;
+	int clicknum; // 이전에 클릭한 위치
+	long t_start, t_end; // 시간 측정
 	// =========================
 	static JButton btn_robot = new JButton("AI 도와줘!");
-	static String str_dir = new String();
+	// =========================
 
 	public Sliding() {
-
-		String s = Pop();
+		String s = Pop(); //초기 dialog
+		
 		StringTokenizer st = new StringTokenizer(s);
 		n = Integer.parseInt(st.nextToken());
 		level = Integer.parseInt(st.nextToken());
 
-		// 원본 그림 읽기
-		MediaTracker tracker = new MediaTracker(this); //// 이미지에만 적용되는 쓰레드역할 단독사용해야함
-		/*
-		 * 이미지가 올려지는동안 부분적으로 보여지는것을 볼수있다. 이런현상을 방지하기위해 MediaTracker를 사용한다. MediaTracker는
-		 * 그림이 완전히 올려지면 그이미지를 보여준다.
-		 */
+		// 원본 그림 읽기, 이미지 부분노출 방지로 mediatracker사용.
+		MediaTracker tracker = new MediaTracker(this);
 
-		original = Toolkit.getDefaultToolkit().getImage("default.jpg"); // 1.jpg라는 그림파일을 프로젝트 안에 넣어야 함
+		original = Toolkit.getDefaultToolkit().getImage("default.jpg");
 		original = original.getScaledInstance(500, 500, Image.SCALE_DEFAULT);
+		
 		blank = Toolkit.getDefaultToolkit().getImage("blank.jpg");
+		
 		tracker.addImage(original, 0);
 		try {
-			tracker.waitForAll(); // waitForAll(); : Starts loading all images tracked by this media tracker.
-		} catch (InterruptedException e) {
-		}
+			tracker.waitForAll();
+		} catch (InterruptedException e) {}
+		
+		// 퍼즐 1개의 사이즈 설정
 		width = original.getWidth(this) / n;
 		height = original.getHeight(this) / n;
 		setSize(new Dimension(width * n, height * n));
 
-		// 이미지를 잘라 넣자
 		img = new BufferedImage[n * n];
+		
+		// 사이즈에 맞게 그림 자르기
 		int cnt = 0;
 		for (int i = 0; i < n; i++) {
-			for (int j = 0; j < n; j++) {
-				if (i == n - 1 && j == n - 1) {
+			for (int j = 0; j < n; j++) {				
+				if (i == n - 1 && j == n - 1) { //맨 마지막 블럭은 blank로 설정
 					img[cnt] = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 					Graphics g = img[cnt].getGraphics();
 
-					// 원본이미지에서 필요한 부분만 잘라서 그리기
-					g.drawImage(blank, 0, 0, width, height, // 그려질 위치
-							j * width, i * height, (j + 1) * width, (i + 1) * height, this); // 그림을 잘라낼부분
+					g.drawImage(blank, 0, 0, width, height,
+							j * width, i * height, (j + 1) * width, (i + 1) * height, this);
 					cnt++;
 					break;
 				}
@@ -80,7 +79,7 @@ public class Sliding extends JPanel implements MouseListener {
 				img[cnt] = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 				Graphics g = img[cnt].getGraphics();
 
-				// 원본이미지에서 필요한 부분만 잘라서 그리기
+				// 원본이미지에서 잘라서 그림
 				g.drawImage(original, 0, 0, width, height, // 그려질 위치
 						j * width, i * height, (j + 1) * width, (i + 1) * height, this); // 그림을 잘라낼부분
 				cnt++;
@@ -90,10 +89,10 @@ public class Sliding extends JPanel implements MouseListener {
 		shuffle(level); // 숫자 섞기
 		addMouseListener(this); // 마우스 리스너 등록
 
-		t_start = System.currentTimeMillis();
+		t_start = System.currentTimeMillis(); // 시작 시간
 	}
 
-	// game배열의 숫자 섞기
+	// game배열의 숫자 섞는 함수
 	private void shuffle(int level) {
 		char[] dir = { 'l', 'r', 'u', 'd' };
 		int block = n * n - 1;
@@ -112,7 +111,7 @@ public class Sliding extends JPanel implements MouseListener {
 
 	}
 
-	// 그리기 코드에 paint에 몰아준다.
+	// 그림 업데이트용
 	public void paint(Graphics g) {
 		int cnt = 0;
 		for (int i = 0; i < n; i++) {
@@ -130,17 +129,18 @@ public class Sliding extends JPanel implements MouseListener {
 		frame.setLayout(null);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setSize(513, 580);
-		frame.setResizable(false); // 프레임의 크기를 변경할수 없다(false)
+		frame.setResizable(false);
 		frame.add(pane);
 
+		// 버튼 리스너
 		btn_robot.addActionListener(new ActionListener() {
-
 			int block = 0;
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				int temp[] = new int[n * n];
 
+				// game[]의 blank를 0으로 변경
 				for (int i = 0; i < temp.length; i++) {
 					if (game[i] == n * n - 1) {
 						block = i;
@@ -151,18 +151,11 @@ public class Sliding extends JPanel implements MouseListener {
 				}
 
 				Puzzle puzzle = new Puzzle(temp, n);
-
-				// Solve the puzzle.
-				str_dir = puzzle.solve();
-
+				String str_dir = puzzle.solve();
+				
+				// 받아온 방향대로 자동 move
 				for (int i = 0; i < str_dir.length(); i++) {
 					block = pane.move(str_dir.charAt(i), block, 2);
-					try {
-						Thread.sleep(500);
-					} catch (InterruptedException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
 				}
 			}
 		});
@@ -174,6 +167,7 @@ public class Sliding extends JPanel implements MouseListener {
 		frame.setVisible(true);
 	}
 
+	// 방향에 맞게 퍼즐 위치 변경(blank 기준)
 	public int move(char dir, int imgNo, int human) {
 		int temp = 0;
 
@@ -219,6 +213,7 @@ public class Sliding extends JPanel implements MouseListener {
 
 		boolean tfend = endGame();
 
+		// 0 = 사람아님, 1 = 사람, 2 = ai
 		if (human == 1) {
 			if (tfend) { // if(조건식)에서 조건식이 true면 if문실행
 				t_end = System.currentTimeMillis();
@@ -231,6 +226,7 @@ public class Sliding extends JPanel implements MouseListener {
 				String time = String.valueOf((t_end - t_start) / 1000);
 				System.out.println("실행 시간 : " + time + "초");
 
+				// 랭킹 창
 				Filerank fr = new Filerank(name, time);
 			}
 		} else if (human == 2) {
@@ -243,20 +239,16 @@ public class Sliding extends JPanel implements MouseListener {
 		return imgNo;
 	}
 
-	// 마우스 리스너 구현
+	// 마우스 리스너
 	public void mouseClicked(MouseEvent e) {
 		int x = e.getX(); // x좌표
 		int y = e.getY(); // y좌표
-		int r = y / height; // 그림 한개의 높이로 나눈다
-		int c = x / width; // 그림 한개의 폭으로 나눈다
-		int imgNo = r * n + c; // 배열 첨자
-		//String coord = "(" + x + ", " + y + ") - (" + r + ", " + c + ") - " + imgNo + " : " + game[imgNo];
-		// imgNo : 현재 그림 위치 / game[imgNo] : 정답위치 / clickNum = imgNo
-		//System.out.println(coord);
-
+		int r = y / height; // 작은 그림 한개 세로
+		int c = x / width; // 작은 그림 한개 가로
+		int imgNo = r * n + c; // 현재 이미지 위치
 		// =======================================================
 
-		clickNum = imgNo;
+		clicknum = imgNo;
 		int blank = n * n - 1;
 
 		try {
@@ -301,6 +293,7 @@ public class Sliding extends JPanel implements MouseListener {
 		return endGame;
 	}
 
+	// 초기 난이도, n 세팅 함수
 	private String Pop() {
 		String n = JOptionPane.showInputDialog("가로 몇 줄의 퍼즐을 원하세요? (2이상 숫자입력)");
 		if (n == null || !isDigit(n)) {
@@ -327,6 +320,7 @@ public class Sliding extends JPanel implements MouseListener {
 		return n + " " + level;
 	}
 
+	// 숫자 판별 함수
 	private boolean isDigit(String value) {
 		if ("".equals(value)) {
 			return false;
