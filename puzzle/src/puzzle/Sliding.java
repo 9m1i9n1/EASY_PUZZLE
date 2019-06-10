@@ -20,7 +20,7 @@ import javax.swing.JPanel;
 
 
 public class Sliding extends JPanel implements MouseListener {
-
+	// =========================
 	int count = 0; // count : 증가변수
 	static int game[]; // game : 실제 저장된 값
 	static int n; // 행, 열
@@ -32,7 +32,7 @@ public class Sliding extends JPanel implements MouseListener {
 	int clicknum; // 이전에 클릭한 위치
 	long t_start, t_end; // 시간 측정
 	// =========================
-	static JButton btn_robot = new JButton("AI 도와줘!");
+	static JButton btn_robot = new JButton("AI 도와줘!"); // 버튼
 	// =========================
 
 	public Sliding() {

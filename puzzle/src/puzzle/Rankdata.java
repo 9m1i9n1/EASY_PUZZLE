@@ -1,20 +1,10 @@
 package puzzle;
 
 public class Rankdata {
-	private String name;
-	private String time;
+	private String name; //이름
+	private String time; //시간
 
 	Rankdata() {
-	}
-
-	public Object get(int columnIndex) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public int size() {
-		// TODO Auto-generated method stub
-		return 0;
 	}
 
 	Rankdata(String name, String time) {
