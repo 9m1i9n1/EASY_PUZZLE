@@ -281,16 +281,14 @@ public class Sliding extends JPanel implements MouseListener {
 		}
 	}
 
-	// 게임 종료를 확인하는 메소드
+	// 퍼즐 완성 확인 함수
 	private boolean endGame() {
-		boolean endGame = true;
-		for (int i = 0; i < game.length; i++) {
-			if (i != game[i]) {
-				endGame = false;
-			}
-		}
-
-		return endGame;
+		for (int i = 1; i < game.length; i++) {
+		      if(game[i-1] > game[i]) {
+		    	  return false;
+		      }
+		    }
+		return true;
 	}
 
 	// 초기 난이도, n 세팅 함수

@@ -2,97 +2,62 @@ package puzzle;
 
 import java.util.Arrays;
 
-/**
- * The state class is responsible for holding the current
- * state of the puzzle, the previous state of the puzzle, as
- * well as other information about the current state, such as the
- * index of the blank space as well as g(n) and h(n).
- *
- * @author Casey Scarborough
- */
 class State {
-
-  /** The array representing the puzzle's state. */
-  public int[] array;
-
-  /** The index location of the blank tile in the current state. */
-  public int blankIndex;
-
-  /** The number of moves since the start. */
+  public int[] array; // 전체적인 퍼즐 위치
+  public int blank; // blank 퍼즐 위치
+  // =============================
   private int g; //시작부터의 경로
-
-  /** The number of moves to the goal. */
   private int h; //목표까지의 경로
-
-  /** The previous state. */
-  private State previous;
+  private State previous; // 이전 State
+  // =============================
+  private String dir = ""; //총 방향 저장할 String
+  // =============================
   
-  private String dir = "";
-  
-  private int n;
-
-  /**
-   * Initial constructor for the com.caseyscarborough.puzzle.State class.
-   * @param input An array representing a puzzle.
-   */
+  // 새로운 State 만들때의 생성자
   public State(int[] input) {
-	int n = (int) Math.sqrt(input.length);
+	int n = (int) Math.sqrt(input.length); // 퍼즐 행, 열
+	
 	array = new int[n];
     this.array = input;
-    this.blankIndex = getIndex(input, 0); //n받아오기. (blank 찾는함수 : getIndex)
+    this.blank = getblank(input, 0);
     this.previous = null;
     this.g = 0;
     this.h = Puzzle.getHeuristic(this.array);
   }
 
-  /**
-   * This constructor is used to create a new state based on
-   * the previous state and a new blank index.
-   * @param previous The previous state.
-   * @param blankIndex The new blank index.
-   */
-  public State(State previous, int blankIndex, char c) {
+  // 진행중인 State를 만들때의 생성자 (previous : 이전 State, c : 이전 State dir)
+  public State(State previous, int blankid, char c) {
     this.array = Arrays.copyOf(previous.array, previous.array.length);
-    this.array[previous.blankIndex] = this.array[blankIndex];
-    this.array[blankIndex] = 0;
-    this.blankIndex = blankIndex;
+    this.array[previous.blank] = this.array[blankid];
+    this.array[blankid] = 0;
+    this.blank = blankid;
+    // ===========================
     this.g = previous.g + 1;
     this.h = Puzzle.getHeuristic(this.array);
     this.previous = previous;
     this.dir += c;
   }
 
-  /**
-   * This method gets the index of a particular value in array.
-   * It is primarily used to retrieve the index of the blank tile
-   * in the constructor of the com.caseyscarborough.puzzle.State class.
-   * @param array A puzzle state array.
-   * @param value The value in the array to retrieve the index for.
-   * @return int - The index of the tile being searched for.
-   */
-  public static int getIndex(int[] array, int value) {
+  // blank 위치 찾는 함수
+  public static int getblank(int[] array, int val) {
     for (int i = 0; i < array.length; i++)
-      if (array[i] == value) return i;
+      if (array[i] == val) return i;
     return -1;
   }
 
-  /**
-   * This method checks to see if the current state is the solved state.
-   * @return True if it is in the solved state, false if it is not.
-   */
+  // 퍼즐 완성 확인 함수
   public boolean isSolved() {
     int[] p = this.array;
-    for (int i = 1; i < p.length - 1; i++)
-      if(p[i-1] > p[i]) return false;
-
+    
+    for (int i = 1; i < p.length - 1; i++) {
+      if(p[i-1] > p[i]) {
+    	  return false;
+      }
+    }
     return (p[0] == 1);
   }
 
-  /**
-   * This method returns a string representation of all
-   * steps taken to solve the puzzle.
-   * @return String - The puzzle steps as a string.
-   */
+  // 경로 뿌려주는 함수
   public String allSteps() {
 	String s = new String();
     if (this.previous != null) s += previous.allSteps();
@@ -100,37 +65,22 @@ class State {
     return s;
   }
 
-  /**
-   * This method returns the g(n) part of the cost function. It is the
-   * amount of steps that the current state is at.
-   * @return int - The g(n) of the current state.
-   */
+  // g(n) 리턴 (현재 단계 수)
   public int g() {
     return this.g;
   }
 
-  /**
-   * This method returns the h(n) part of the cost function. It is the
-   * heuristic (steps to the goal state) for the current state.
-   * @return int - The h(n) of the current state.
-   */
+  // h(n) 리턴 (현재 휴리스틱)
   public int h() {
     return this.h;
   }
 
-  /**
-   * The f(n) or total cost of the current state. This is calculated by
-   * retrieving the g + h of the state.
-   * @return int - The f(n) of the current state.
-   */
+  // f(n) 리턴 (현재 총 비용 <g + h>)
   public int f() {
     return g() + h();
   }
 
-  /**
-   * Getter for the previous field.
-   * @return State - The previous state.
-   */
+  // 이전 State 리턴
   public State getPrevious() {
     return this.previous;
   }

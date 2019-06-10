@@ -61,7 +61,7 @@ public class Puzzle {
 
       // 퍼즐이 풀렸는지 확인
       if (this.state.isSolved()) {
-        System.out.println(this.state.allSteps());
+        System.out.println("컴퓨터의 경로 : " + this.state.allSteps());
         return this.state.allSteps();
       }
 

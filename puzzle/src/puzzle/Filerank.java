@@ -116,7 +116,6 @@ public class Filerank {
 
 		int cnt = 1;
 		for (Rankdata r : player) {
-			System.out.println(r.getname() + ", " + r.gettime());
 			// 행마다 데이터 설정
 			userRow = new Vector<String>();
 			userRow.addElement(Integer.toString(cnt));
