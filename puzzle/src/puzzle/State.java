@@ -19,10 +19,10 @@ class State {
   public int blankIndex;
 
   /** The number of moves since the start. */
-  private int g;
+  private int g; //시작부터의 경로
 
   /** The number of moves to the goal. */
-  private int h;
+  private int h; //목표까지의 경로
 
   /** The previous state. */
   private State previous;
